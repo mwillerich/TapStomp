@@ -23,11 +23,12 @@
 #include "everytime.h"
 #include <avr/sleep.h>
 
-// constants won't change. They're used here to set pin numbers:
+//pin definitions
 const int buttonPin = 2;     // the number of the pushbutton pin
 const int ledPin =  13;      // the number of the LED pin
 
-// Variables will change:
+const bool debug = TRUE;
+
 int ledState = HIGH;         // the current state of the output pin
 int buttonState = 0;         // the current reading from the input pin
 int lastButtonState = LOW;   // the previous reading from the input pin
@@ -41,13 +42,6 @@ unsigned long firstMillis = 0;  // the last time the output pin was toggled
 unsigned long secondMillis = 0;  // the last time the output pin was toggled
 unsigned long currentMillis = 0;  // the last time the output pin was toggled
 
-void setup() {
-  // initialize the LED pin as an output:
-  pinMode(ledPin, OUTPUT);
-  // initialize the pushbutton pin as an input:
-  pinMode(buttonPin, INPUT);
-  Serial.begin(9600);
-}
 
 void countBPM() {
   currentMillis = millis();
@@ -79,15 +73,13 @@ void buttonStuff() {
 
   if ((millis() - lastDebounceTime) > debounceDelay) {
     // whatever the reading is at, it's been there for longer than the debounce
-    // delay, so take it as the actual current ledState:
+    // delay, so take it as the actual current ledState
 
-    // if the button ledState has changed:
+    // if the button ledState has changed
     if (reading != buttonState) {
       buttonState = reading;
 
-      // only toggle the LED if the new button ledState is HIGH
       if (buttonState == HIGH) {
-        //ledState = !ledState;
         Serial.print("button millis: ");
         Serial.println(millis());
         countBPM();
@@ -95,10 +87,6 @@ void buttonStuff() {
     }
   }
 
-  // set the LED:
-  //digitalWrite(ledPin, ledState);
-
-  // save the reading. Next time through the loop, it'll be the lastButtonledState:
   lastButtonState = reading;
 }
 
@@ -106,7 +94,7 @@ void sleepBlock() {   //sleepblock put if(0) in front if u do not want the AVR t
   /*     set sleep mode
   *     SLEEP_MODE_IDLE
   *        -the least power savings keeps io-clk running -> timer 0 ->
-  *         millis and micros keep working (wakeup every about every 1ms)
+  *         millis and micros keep working (wakeup about every 1ms)
   *     SLEEP_MODE_ADC
   *     SLEEP_MODE_PWR_SAVE
   *     SLEEP_MODE_STANDBY
@@ -117,28 +105,20 @@ void sleepBlock() {   //sleepblock put if(0) in front if u do not want the AVR t
   sleep_mode();            // put the device to sleep
   sleep_disable();
 }
-void loop() {
 
-/*
-  // read the ledState of the pushbutton value:
-  buttonState = digitalRead(buttonPin);
-
-  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonState == HIGH) {
-    // turn LED on:
-    digitalWrite(ledPin, HIGH);
-    Serial.print("button millis: ");
-    Serial.println(millis());
-  } else {
-    // turn LED off:
-    digitalWrite(ledPin, ledState);
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
+  if(debug) {
+  	Serial.begin(9600);
   }
-*/
+}
 
+void loop() {
   static uint8_t ledState = 0;
-  //execute every interval
+
   every(interval){
-      // blink (change ledState and write to led
+      // blink (change ledState and write to led)
       Serial.print("interval BPM: ");
       Serial.print(((float)1000 / interval * (float)60));
       Serial.print(" Millis: ");

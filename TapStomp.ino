@@ -27,20 +27,20 @@
 const int buttonPin = 2;     // the number of the pushbutton pin
 const int ledPin =  13;      // the number of the LED pin
 
-const bool debug = TRUE;
+const bool debug = true;
 
-int ledState = HIGH;         // the current state of the output pin
-int buttonState = 0;         // the current reading from the input pin
-int lastButtonState = LOW;   // the previous reading from the input pin
+bool ledState = HIGH;         // the current state of the output pin
+bool buttonState = 0;         // the current reading from the input pin
+bool lastButtonState = LOW;   // the previous reading from the input pin
 int interval = 500;          // current BPM in millis
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
-unsigned long firstMillis = 0;  // the last time the output pin was toggled
-unsigned long secondMillis = 0;  // the last time the output pin was toggled
-unsigned long currentMillis = 0;  // the last time the output pin was toggled
+unsigned long firstMillis = 0;       // the last time the output pin was toggled
+unsigned long secondMillis = 0;      // the last time the output pin was toggled
+unsigned long currentMillis = 0;     // the last time the output pin was toggled
 
 
 void countBPM() {
@@ -57,32 +57,25 @@ void countBPM() {
   }
 }
 
-void buttonStuff() {
-  // read the ledState of the switch into a local variable:
-  int reading = digitalRead(buttonPin);
+void deBouncedButton(void (*function)()) {
+  int currentButtonState = digitalRead(buttonPin);
 
-  // check to see if you just pressed the button
-  // (i.e. the input went from LOW to HIGH), and you've waited long enough
-  // since the last press to ignore any noise:
-
-  // If the switch changed, due to noise or pressing:
-  if (reading != lastButtonState) {
+  // If the switch changed, due to noise or pressing
+  if (currentButtonState != lastButtonState) {
     // reset the debouncing timer
     lastDebounceTime = millis();
   }
 
   if ((millis() - lastDebounceTime) > debounceDelay) {
     // whatever the reading is at, it's been there for longer than the debounce
-    // delay, so take it as the actual current ledState
+    // delay, so take it as the actual current state
 
-    // if the button ledState has changed
-    if (reading != buttonState) {
-      buttonState = reading;
+    // if the button state has changed
+    if (currentButtonState != buttonState) {
+      buttonState = currentButtonState;
 
       if (buttonState == HIGH) {
-        Serial.print("button millis: ");
-        Serial.println(millis());
-        countBPM();
+        (*function)();
       }
     }
   }
@@ -90,7 +83,7 @@ void buttonStuff() {
   lastButtonState = reading;
 }
 
-void sleepBlock() {   //sleepblock put if(0) in front if u do not want the AVR to sleep
+void milliSecondSleep() {
   /*     set sleep mode
   *     SLEEP_MODE_IDLE
   *        -the least power savings keeps io-clk running -> timer 0 ->
@@ -102,7 +95,7 @@ void sleepBlock() {   //sleepblock put if(0) in front if u do not want the AVR t
   */
   set_sleep_mode(SLEEP_MODE_IDLE); //sleeps for the rest of this millisecond or less if other trigger
   sleep_enable();
-  sleep_mode();            // put the device to sleep
+  sleep_mode(); // put the device to sleep
   sleep_disable();
 }
 
@@ -115,18 +108,17 @@ void setup() {
 }
 
 void loop() {
-  static uint8_t ledState = 0;
+  static bool ledState = false;
 
-  every(interval){
-      // blink (change ledState and write to led)
+  every(interval) {
       Serial.print("interval BPM: ");
-      Serial.print(((float)1000 / interval * (float)60));
+      Serial.print((float)1000 / interval * (float)60);
       Serial.print(" Millis: ");
       Serial.println(millis());
-      ledState = ! ledState;
+      ledState = !ledState;
       digitalWrite(ledPin ,ledState);
   }
 
-  buttonStuff();
-  sleepBlock();
+  deBouncedButton(countBPM);
+  milliSecondSleep();
 }

@@ -1,8 +1,8 @@
 /*
-  Button
+  TapStomp
 
-  Turns on and off a light emitting diode(LED) connected to digital pin 13,
-  when pressing a pushbutton attached to pin 2.
+  Turns on and off a light emitting diode(LED) connected to digital pin 13 in regular intervals,
+  which are controlled by pressing a pushbutton attached to pin 2.
 
   The circuit:
   - LED attached from pin 13 to ground
@@ -12,15 +12,14 @@
   - Note: on most Arduinos there is already an LED on the board
     attached to pin 13.
 
-  created 2005
-  by DojoDave <http://www.0j0.org>
-  modified 30 Aug 2011
-  by Tom Igoe
+  - uses https://www.arduinolibraries.info/libraries/everytime
+  
+  created 2018
+  by Matthias Willerich <http://gain-volume.com>
 
-  This example code is in the public domain.
-
-  http://www.arduino.cc/en/Tutorial/Button
+  https://github.com/mwillerich/TapStomp
 */
+
 #include "everytime.h"
 #include <avr/sleep.h>
 

@@ -80,7 +80,7 @@ void deBouncedButton(void (*function)()) {
     }
   }
 
-  lastButtonState = reading;
+  lastButtonState = currentButtonState;
 }
 
 void milliSecondSleep() {
@@ -99,6 +99,17 @@ void milliSecondSleep() {
   sleep_disable();
 }
 
+void executeBeat() {
+    Serial.print("interval BPM: ");
+    Serial.print((float)1000 / interval * (float)60);
+    Serial.print(" Millis: ");
+    Serial.println(millis());
+    ledState = !ledState;
+    digitalWrite(ledPin ,ledState);
+	//todo: Show BPM on display
+	//todo: Play sound
+}
+
 void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(buttonPin, INPUT);
@@ -111,12 +122,7 @@ void loop() {
   static bool ledState = false;
 
   every(interval) {
-      Serial.print("interval BPM: ");
-      Serial.print((float)1000 / interval * (float)60);
-      Serial.print(" Millis: ");
-      Serial.println(millis());
-      ledState = !ledState;
-      digitalWrite(ledPin ,ledState);
+      executeBeat();
   }
 
   deBouncedButton(countBPM);

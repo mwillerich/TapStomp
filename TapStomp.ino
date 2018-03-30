@@ -42,6 +42,19 @@ unsigned long firstMillis = 0;       // the last time the output pin was toggled
 unsigned long secondMillis = 0;      // the last time the output pin was toggled
 unsigned long currentMillis = 0;     // the last time the output pin was toggled
 
+int minMaxMillis(int nextInterval) {
+  if(nextInterval > 2000) {
+    Serial.print("Outside max: ");
+    Serial.println(nextInterval);
+    nextInterval = 2000;
+  }
+  if(nextInterval < 250) {
+    Serial.print("Outside min: ");
+    Serial.println(nextInterval);
+    nextInterval = 250;
+  }
+  return nextInterval;
+}
 
 void countBPM() {
   currentMillis = millis();
@@ -51,8 +64,8 @@ void countBPM() {
   } else if(secondMillis == 0) {
     secondMillis = currentMillis;
     Serial.print("button millis diff: ");
-    Serial.println(secondMillis - firstMillis);
-    interval = secondMillis - firstMillis;
+    Serial.println((secondMillis - firstMillis));
+    interval = minMaxMillis(secondMillis - firstMillis);
     secondMillis = firstMillis = 0;
   }
 }
@@ -73,7 +86,8 @@ void deBouncedButton(void (*function)()) {
     // if the button state has changed
     if (currentButtonState != buttonState) {
       buttonState = currentButtonState;
-
+      Serial.print("Button press: ");
+      Serial.println(buttonState);
       if (buttonState == HIGH) {
         (*function)();
       }

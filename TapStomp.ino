@@ -32,7 +32,10 @@ const bool debug = true;
 bool ledState = HIGH;         // the current state of the output pin
 bool buttonState = 0;         // the current reading from the input pin
 bool lastButtonState = LOW;   // the previous reading from the input pin
+
 int interval = 500;          // current BPM in millis
+int minInterval = 250;       // minimum interval = maximum BPM = 240
+int maxInterval = 2000;      // maximum interval = minimum BPM = 30
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -42,13 +45,8 @@ unsigned long firstMillis = 0;       // the last time the output pin was toggled
 unsigned long secondMillis = 0;      // the last time the output pin was toggled
 unsigned long currentMillis = 0;     // the last time the output pin was toggled
 
-int minMaxMillis(int nextInterval) {
-  if(nextInterval > 2000) {
-    Serial.print("Outside max: ");
-    Serial.println(nextInterval);
-    nextInterval = 2000;
-  }
-  if(nextInterval < 250) {
+int minMillis(int nextInterval) {
+  if(nextInterval < minInterval) {
     Serial.print("Outside min: ");
     Serial.println(nextInterval);
     nextInterval = 250;
@@ -63,10 +61,21 @@ void countBPM() {
     secondMillis = 0;
   } else if(secondMillis == 0) {
     secondMillis = currentMillis;
-    Serial.print("button millis diff: ");
-    Serial.println((secondMillis - firstMillis));
-    interval = minMaxMillis(secondMillis - firstMillis);
+    int diff = secondMillis - firstMillis;
+    Serial.print("Button millis diff: ");
+    Serial.println(diff);
+    interval = minMillis(diff);
     secondMillis = firstMillis = 0;
+  }
+}
+
+void cancelBPMCount() {
+  if(firstMillis != 0 and secondMillis == 0) {
+    if(millis() - firstMillis > maxInterval) {
+      Serial.print("Outside max, cancel firstMillis: ");
+      Serial.println((millis() - firstMillis));
+      secondMillis = firstMillis = 0;
+    }
   }
 }
 
@@ -140,5 +149,6 @@ void loop() {
   }
 
   deBouncedButton(countBPM);
+  cancelBPMCount();
   milliSecondSleep();
 }

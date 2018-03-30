@@ -12,10 +12,10 @@ Arduino Code, ToDo List and Documentation for a Tap Tempo/Metronome/Stomp Box Gu
 - simple proof-of-concept hardware on breadboard: Arduino Uno, momentary push button, pull-down resistor, on-board LED
 - simple tap: Every second tap sets the speed of an alternating LED
 - amend too-quick and too-slow taps. Max/min range from 30 to 240 BPM
+- timeout for aborted taps, removed too-slow taps. Min range 30 BPM
 
 ## ToDo
 - average 3 taps
-- timeout for aborted taps (max/min range)
 - connect display
 - connect output to play simple sound
 - connect microSD to read out and play 8-bit mono wav

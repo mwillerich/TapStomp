@@ -22,6 +22,11 @@
 
 #include "everytime.h"
 #include <avr/sleep.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
+
+Adafruit_AlphaNum4 alpha4 = Adafruit_AlphaNum4();
 
 //pin definitions
 const int buttonPin = 2;     // the number of the pushbutton pin
@@ -36,6 +41,7 @@ bool lastButtonState = LOW;   // the previous reading from the input pin
 int interval = 500;          // current BPM in millis
 int minInterval = 250;       // minimum interval = maximum BPM = 240
 int maxInterval = 2000;      // maximum interval = minimum BPM = 30
+float bpm;
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -44,6 +50,27 @@ unsigned long debounceDelay = 50;    // the debounce time; increase if the outpu
 unsigned long firstMillis = 0;       // the last time the output pin was toggled
 unsigned long secondMillis = 0;      // the last time the output pin was toggled
 unsigned long currentMillis = 0;     // the last time the output pin was toggled
+
+void displayBPM(int bpm) {
+  
+  String strBpm;
+  char cBpm[4];
+  strBpm = String(bpm);
+
+  strBpm.toCharArray(cBpm,4);
+
+  Serial.print("display out: ");
+  Serial.println(cBpm);
+  // set every digit to the buffer
+  alpha4.writeDigitAscii(0, cBpm[0]);
+  alpha4.writeDigitAscii(1, cBpm[1]);
+  alpha4.writeDigitAscii(2, cBpm[2]);
+  alpha4.writeDigitAscii(3, cBpm[3]);
+ 
+  // write it out!
+  //alpha4.clear();
+  alpha4.writeDisplay();
+}
 
 int minMillis(int nextInterval) {
   if(nextInterval < minInterval) {
@@ -60,11 +87,14 @@ void countBPM() {
     firstMillis = currentMillis;
     secondMillis = 0;
   } else if(secondMillis == 0) {
+	//set BPM
     secondMillis = currentMillis;
     int diff = secondMillis - firstMillis;
     Serial.print("Button millis diff: ");
     Serial.println(diff);
     interval = minMillis(diff);
+	bpm = (float)1000 / interval * (float)60;
+	displayBPM(bpm);
     secondMillis = firstMillis = 0;
   }
 }
@@ -124,7 +154,7 @@ void milliSecondSleep() {
 
 void executeBeat() {
     Serial.print("interval BPM: ");
-    Serial.print((float)1000 / interval * (float)60);
+    Serial.print(bpm);
     Serial.print(" Millis: ");
     Serial.println(millis());
     ledState = !ledState;
@@ -139,6 +169,7 @@ void setup() {
   if(debug) {
   	Serial.begin(9600);
   }
+  alpha4.begin(0x70);  // pass in the address
 }
 
 void loop() {

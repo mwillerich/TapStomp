@@ -13,10 +13,11 @@ Arduino Code, ToDo List and Documentation for a Tap Tempo/Metronome/Stomp Box Gu
 - simple tap: Every second tap sets the speed of an alternating LED
 - amend too-quick and too-slow taps. Max/min range from 30 to 240 BPM
 - timeout for aborted taps, removed too-slow taps. Min range 30 BPM
+- connect display
 
 ## ToDo
 - average 3 taps
-- connect display
+- tidy display output, display decimal BPM
 - connect output to play simple sound
 - connect microSD to read out and play 8-bit mono wav
 - output volume control

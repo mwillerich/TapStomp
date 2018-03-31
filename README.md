@@ -18,7 +18,6 @@ Arduino Code, ToDo List and Documentation for a Tap Tempo/Metronome/Stomp Box Gu
 - connect output to play simple sound
 
 ## ToDo
-- fix display
 - put LED on a different port, as port 13 is busy with SD
 - be able to stop the stomp :-D
 - better sound

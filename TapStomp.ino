@@ -8,7 +8,7 @@
   - LED attached from pin 13 to ground
   - pushbutton attached to Digital pin 2 from +5V
   - 10K resistor attached to pin 2 from ground
-  - alphanumeric display on ground, 2x+5V, DAT D on Analog 5, CLK C on Analog 4
+  - alphanumeric display on ground, 2x+5V, DAT D on Analog 4, CLK C on Analog 5
 
   - Note: on most Arduinos there is already an LED on the board
     attached to pin 13.

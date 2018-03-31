@@ -14,8 +14,8 @@
     attached to pin 13.
 
   - uses 
-    - https://www.arduinolibraries.info/libraries/everytime
-    - https://www.arduinolibraries.info/libraries/tm-rpcm
+    - https://www.arduinolibraries.info/libraries/everytime for regular timed event
+    - https://www.arduinolibraries.info/libraries/tm-rpcm to output analog sound signal from WAV file stored on SD card
   
   created 2018
   by Matthias Willerich <http://gain-volume.com>
@@ -43,7 +43,7 @@ const int buttonPin = 2;     // the number of the pushbutton pin
 //TODO pin13 is now busy with SD card
 const int ledPin =  13;      // the number of the LED pin
 
-const bool debug = true;
+const bool debug = false;
 
 bool ledState = HIGH;         // the current state of the output pin
 bool buttonState = 0;         // the current reading from the input pin
@@ -72,14 +72,13 @@ void displayBPM(int bpm) {
 
   Serial.print("display out: ");
   Serial.println(cBpm);
+  alpha4.clear();
   // set every digit to the buffer
   alpha4.writeDigitAscii(0, cBpm[0]);
   alpha4.writeDigitAscii(1, cBpm[1]);
   alpha4.writeDigitAscii(2, cBpm[2]);
   alpha4.writeDigitAscii(3, cBpm[3]);
- 
-  // write it out!
-  //alpha4.clear();
+
   alpha4.writeDisplay();
 }
 
@@ -180,6 +179,7 @@ void setup() {
   	Serial.begin(9600);
   }
   alpha4.begin(0x70);  // pass in the address
+  alpha4.clear();
   tmrpcm.speakerPin = 9;
   if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
     Serial.println("SD fail");  

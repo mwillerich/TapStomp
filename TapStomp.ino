@@ -6,13 +6,16 @@
 
   The circuit:
   - LED attached from pin 13 to ground
-  - pushbutton attached to pin 2 from +5V
+  - pushbutton attached to Digital pin 2 from +5V
   - 10K resistor attached to pin 2 from ground
+  - alphanumeric display on ground, 2x+5V, DAT D on Analog 5, CLK C on Analog 4
 
   - Note: on most Arduinos there is already an LED on the board
     attached to pin 13.
 
-  - uses https://www.arduinolibraries.info/libraries/everytime
+  - uses 
+    - https://www.arduinolibraries.info/libraries/everytime
+    - https://www.arduinolibraries.info/libraries/tm-rpcm
   
   created 2018
   by Matthias Willerich <http://gain-volume.com>
@@ -26,10 +29,18 @@
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
 
+#include <SD.h>                      // need to include the SD library
+#define SD_ChipSelectPin 10
+#include <TMRpcm.h>           //  also need to include this library...
+#include <SPI.h>
+
+TMRpcm tmrpcm;   // create an object for use in this sketch
+
 Adafruit_AlphaNum4 alpha4 = Adafruit_AlphaNum4();
 
 //pin definitions
 const int buttonPin = 2;     // the number of the pushbutton pin
+//TODO pin13 is now busy with SD card
 const int ledPin =  13;      // the number of the LED pin
 
 const bool debug = true;
@@ -159,8 +170,7 @@ void executeBeat() {
     Serial.println(millis());
     ledState = !ledState;
     digitalWrite(ledPin ,ledState);
-	//todo: Show BPM on display
-	//todo: Play sound
+    tmrpcm.play("bassdrum.wav");
 }
 
 void setup() {
@@ -170,6 +180,11 @@ void setup() {
   	Serial.begin(9600);
   }
   alpha4.begin(0x70);  // pass in the address
+  tmrpcm.speakerPin = 9;
+  if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
+    Serial.println("SD fail");  
+    return;   // don't do anything more if not
+  }
 }
 
 void loop() {

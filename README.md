@@ -20,6 +20,7 @@ Arduino Code, ToDo List and Documentation for a Tap Tempo/Metronome/Stomp Box Gu
 ## ToDo
 - put LED on a different port, as port 13 is busy with SD
 - be able to stop the stomp :-D
+- use taptempo lib
 - better sound
 - average 3 taps
 - tidy display output, display decimal BPM

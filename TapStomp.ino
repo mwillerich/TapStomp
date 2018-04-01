@@ -4,14 +4,10 @@
   Turns on and off a light emitting diode(LED) connected to digital pin 13 in regular intervals,
   which are controlled by pressing a pushbutton attached to pin 2.
 
-  The circuit:
-  - LED attached from pin 13 to ground
-  - pushbutton attached to Digital pin 2 from +5V
-  - 10K resistor attached to pin 2 from ground
-  - alphanumeric display on ground, 2x+5V, DAT D on Analog 4, CLK C on Analog 5
-
-  - Note: on most Arduinos there is already an LED on the board
-    attached to pin 13.
+  The circuit (see all under pin definitions):
+  - LED + resistor
+  - pushbutton + 10K pull-down resistor attached to Digital pin 2 from +5V
+  - 4 digit alphanumeric display on backpack
 
   - uses 
     - https://www.arduinolibraries.info/libraries/everytime for regular timed event
@@ -29,19 +25,25 @@
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
 
-#include <SD.h>                      // need to include the SD library
+#include <SD.h>
 #define SD_ChipSelectPin 10
-#include <TMRpcm.h>           //  also need to include this library...
+#include <TMRpcm.h>
 #include <SPI.h>
 
-TMRpcm tmrpcm;   // create an object for use in this sketch
+TMRpcm tmrpcm;
 
 Adafruit_AlphaNum4 alpha4 = Adafruit_AlphaNum4();
 
 //pin definitions
-const int buttonPin = 2;     // the number of the pushbutton pin
-//TODO pin13 is now busy with SD card
-const int ledPin =  13;      // the number of the LED pin
+const int buttonPin = 2;
+const int ledPin =  8;
+const int audioOutPin =  9;
+//SD_ChipSelectPin 10 //aka CS
+//SD mosi 11
+//SD miso 12
+//SD clk 13
+//AlphaNum4 DAT D on Analog 4
+//AlphaNum4 CLK C on Analog 5
 
 const bool debug = false;
 
@@ -49,10 +51,10 @@ bool ledState = HIGH;         // the current state of the output pin
 bool buttonState = 0;         // the current reading from the input pin
 bool lastButtonState = LOW;   // the previous reading from the input pin
 
-int interval = 500;          // current BPM in millis
+int interval = 1000;         // current BPM in millis = 60
 int minInterval = 250;       // minimum interval = maximum BPM = 240
 int maxInterval = 2000;      // maximum interval = minimum BPM = 30
-float bpm;
+float bpm = 60;              // only set to display at startup
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -180,7 +182,7 @@ void setup() {
   }
   alpha4.begin(0x70);  // pass in the address
   alpha4.clear();
-  tmrpcm.speakerPin = 9;
+  tmrpcm.speakerPin = audioOutPin;
   if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
     Serial.println("SD fail");  
     return;   // don't do anything more if not
